@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubik's Cube Simulator</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ff0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #backgroundCubes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        #logo {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px;
+        }
+
+        #menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .menuItem {
+            margin: 10px;
+            padding: 10px;
+            cursor: pointer;
+            border: 2px solid #ff0;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s, transform 0.3s, box-shadow 0.3s;
+        }
+
+        .menuItem:hover {
+            background-color: #ff0;
+            color: #000;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .cubeBackground {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 165, 0, 0.3);
+            transform-style: preserve-3d;
+            animation: rotate 40s linear infinite;
+        }
+
+        .cubeBackground:nth-child(odd) {
+            animation: rotate 40s linear infinite, rotateReverse 40s linear infinite;
+        }
+
+        @keyframes rotate {
+            0%, 100% {
+                transform: rotateX(45deg) rotateY(315deg);
+            }
+            50% {
+                transform: rotateX(45deg) rotateY(-45deg);
+            }
+        }
+
+        @keyframes rotateReverse {
+            0%, 100% {
+                transform: rotateX(45deg) rotateY(-45deg);
+            }
+            50% {
+                transform: rotateX(45deg) rotateY(315deg);
+            }
+        }
+
+        #copyrightBox {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            border: 2px solid #ff0;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        #contactDetails {
+            font-size: 12px;
+            opacity: 0.7;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="backgroundCubes"></div>
+    <div id="logo">Rubik's Cube Simulator</div>
+    <div id="menu">
+        <div class="menuItem" onclick="startSimulation(2)">2x2x2 Cube</div>
+        <div class="menuItem" onclick="startSimulation(3)">3x3x3 Cube</div>
+        <div class="menuItem" onclick="startSimulation(4)">4x4x4 Cube</div>
+    </div>
+
+    <div id="copyrightBox">
+        <div id="contactDetails">
+            © 2024 Rubik's Cube Simulator<br>
+            Created by Bentley Minton<br>
+            Contact Support:<br>
+            Email: mintonbentley754@gmail.com<br>
+            Phone: (773)-793-3988
+        </div>
+    </div>
+
+    <script>
+        // Function to create background cubes
+        function createBackgroundCubes() {
+            const backgroundCubes = document.getElementById('backgroundCubes');
+
+            for (let i = 0; i < 20; i++) {
+                const cube = document.createElement('div');
+                cube.className = 'cubeBackground';
+                const cubeSize = 40;
+                cube.style.width = `${cubeSize}px`;
+                cube.style.height = `${cubeSize}px`;
+                cube.style.left = `${Math.random() * (window.innerWidth - cubeSize)}px`;
+                cube.style.top = `${Math.random() * (window.innerHeight - cubeSize)}px`;
+                backgroundCubes.appendChild(cube);
+            }
+        }
+
+        createBackgroundCubes();
+
+        function startSimulation(size) {
+            // Redirect to the respective cube simulation page based on size
+            switch (size) {
+                case 2:
+                    window.location.href = '2X2X2 CODE.html';
+                    break;
+                case 3:
+                    window.location.href = '3X3X3 CODE.html';
+                    break;
+                case 4:
+                    window.location.href = '4X4X4 CODE.html';
+                    break;
+                case 5:
+                    window.location.href = 'GAME.html';
+                    break;
+                // Add more cases for additional cube sizes if needed
+            }
+        }
+    </script>
+</body>
+</html>
