@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4x4x4 Cube</title>
+    <style>
+        body {
+            background-color: #000;
+            color: #ff0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .sentence {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        ol {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #timerContainer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        #timer, #timerMessage {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        #menuContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            text-align: right;
+            color: #ff0;
+        }
+
+        .menuButton {
+            background-color: #f39c12;
+            color: #000;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .menuButton:hover {
+            background-color: #d35400;
+        }
+
+        #bestSolvesContainer {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            margin: 10px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #000;
+            max-height: 200px;
+            overflow-y: auto;
+            color: #fff;
+        }
+
+        #bestSolvesTitle {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        #bestSolvesList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #bestSolvesList li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="menuContainer">
+        <div class="menuButton" onclick="resetScrambles()">Reset Scrambles</div>
+        <div class="menuButton" onclick="showConfirmationPopup()">Reset Times</div>
+        <div class="menuButton" onclick="startCountdown(3)">3s</div>
+        <div class="menuButton" onclick="startCountdown(5)">5s</div>
+        <div class="menuButton" onclick="startCountdown(8)">8s</div>
+        <div class="menuButton" onclick="startCountdown(10)">10s</div>
+        <div class="menuButton" onclick="startCountdown(15)">15s</div>
+        <div class="menuButton" onclick="startCountdown(30)">30s</div>
+        <div class="menuButton" onclick="startCountdown(60)">1m</div>
+        <div class="menuButton" onclick="showCubeOptions()">Cube Options</div>
+    </div>
+
+    <ol>
+        <li class="sentence" id="sentence1"></li>
+        <li class="sentence" id="sentence2"></li>
+        <li class="sentence" id="sentence3"></li>
+        <li class="sentence" id="sentence4"></li>
+        <li class="sentence" id="sentence5"></li>
+    </ol>
+
+    <div id="timerContainer">
+        <div id="timer">Scramble 1</div>
+        <div id="timerMessage">Click space to begin timer</div>
+    </div>
+
+    <div id="bestSolvesContainer">
+        <div id="bestSolvesTitle">Best Solves:</div>
+        <ul id="bestSolvesList"></ul>
+    </div>
+
+    <script>
+        let timerRunning = false, startTime, endTime, countdown, scrambleCount = 1, solves = [];
+
+        function generateRandomCharacters() {
+            const moves3x3 = ['R2', 'L2', 'R', 'L', 'D', 'D2', 'U', 'U2', 'B', 'B2', 'R2\'', 'L2\'', 'R\'', 'L\'', 'D\'', 'D2\'', 'U\'', 'U2\'', 'B\'', 'B2\'', 'M', 'M2', 'M\'', 'S', 'S2', 'S\''];
+            return Array.from({ length: Math.floor(Math.random() * 10) + 6 }, () => moves3x3[Math.floor(Math.random() * moves3x3.length)]).join(' ');
+        }
+
+        function resetScrambles() {
+            scrambleCount = 1;
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`sentence${i}`).textContent = `${i}: ${generateRandomCharacters()}`;
+            }
+            resetTimer();
+        }
+
+        function handleSpacebar(event) {
+            if (event.code === 'Space') {
+                if (!timerRunning) {
+                    startTimer();
+                } else {
+                    stopTimer();
+                }
+            }
+        }
+
+        function startTimer() {
+            timerRunning = true;
+            startTime = new Date();
+
+            const timerInterval = setInterval(() => {
+                if (timerRunning) {
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                }
+            }, 10);
+        }
+
+        function stopTimer() {
+            timerRunning = false;
+            endTime = new Date();
+            updateTimerDisplay();
+            if (scrambleCount <= 5) {
+                scrambleCount++;
+                saveSolve();
+                resetTimer();
+            }
+        }
+
+        function saveSolve() {
+            const elapsedTime = endTime - startTime;
+            solves.push(elapsedTime);
+            updateBestSolves();
+        }
+
+        function updateBestSolves() {
+            solves.sort((a, b) => a - b);
+            const bestSolvesListElement = document.getElementById('bestSolvesList');
+            bestSolvesListElement.innerHTML = '';
+            solves.forEach((solveTime, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}: ${formatTime(solveTime)}`;
+                bestSolvesListElement.appendChild(listItem);
+            });
+        }
+
+        function resetTimer() {
+            const timerElement = document.getElementById('timer');
+            timerElement.textContent = `Scramble ${scrambleCount > 5 ? 5 : scrambleCount}`;
+            const timerMessageElement = document.getElementById('timerMessage');
+            timerMessageElement.textContent = 'Click space to begin timer';
+        }
+
+        function formatTime(time) {
+            const milliseconds = time % 1000;
+            const seconds = Math.floor((time / 1000) % 60);
+            const minutes = Math.floor((time / (1000 * 60)) % 60);
+            const hours = Math.floor((time / (1000 * 60 * 60)) % 24);
+            return `${hours.toString().padStart(2, '0')} : ${minutes.toString().padStart(2, '0')} : ${seconds.toString().padStart(2, '0')} : ${milliseconds.toString().padStart(3, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            const timerElement = document.getElementById('timer');
+            const elapsedTime = timerRunning ? new Date() - startTime : endTime - startTime;
+
+            const milliseconds = Math.floor(elapsedTime % 1000);
+            const seconds = Math.floor((elapsedTime / 1000) % 60);
+            const minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
+            const hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 24);
+            timerElement.textContent = `${scrambleCount > 5 ? 5 : scrambleCount}: ${formatTime(elapsedTime)}`;
+        }
+
+        function showConfirmationPopup() {
+            if (confirm('Are you sure you want to reset the times?')) {
+                resetTimes();
+            }
+        }
+
+        function resetTimes() {
+            solves = [];
+            updateBestSolves();
+        }
+
+        function startCountdown(seconds) {
+            resetTimer();
+            countdown = seconds;
+            document.getElementById('timerMessage').textContent = `Starting in ${countdown}s...`;
+            setTimeout(() => {
+                document.getElementById('timerMessage').textContent = 'Click space to begin timer';
+                startTimer();
+            }, seconds * 1000);
+        }
+
+        function showCubeOptions() {
+            // Add your cube options logic here
+            alert('Cube Options: Add your cube-related functionality here.');
+        }
+
+        document.addEventListener('keydown', handleSpacebar);
+        window.addEventListener('load', resetScrambles);
+    </script>
+</body>
+</html>
